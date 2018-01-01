@@ -54,7 +54,6 @@
     <Compile Include="Language\ValueType.cs" />
     <Compile Include="SyntaxTree\AssignmentExpression.cs" />
     <Compile Include="SyntaxTree\DataTypeExpression.cs" />
-    <Compile Include="SyntaxTree\DataTypeExpressions\TriboolExpression.cs" />
     <Compile Include="SyntaxTree\DeclarationExpression.cs" />
     <Compile Include="SyntaxTree\DataTypeExpressions\DoubleExpression.cs" />
     <Compile Include="SyntaxTree\GetVariableExpression.cs" />

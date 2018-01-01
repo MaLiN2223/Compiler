@@ -72,10 +72,6 @@ namespace Compiler.Emitting
       {
         ilg.Emit(OpCodes.Ldc_R8, dub.Value);
       }
-      else if (expression is TriboolExpression trb)
-      {
-        throw new NotSupportedException("Tribool is not supported yet");
-      }
       else if (expression is VariableExpression varexpr)
       {
         var variable = _variablesDict[varexpr.Name];
