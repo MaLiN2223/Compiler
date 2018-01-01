@@ -1,0 +1,19 @@
+int q = 0;
+int a = 100;
+double x = 0.1;
+int i = 1;
+while(i<a){
+	int k = 2;
+	bool isPrime = true;
+	while(k < i / 2){
+		if(i % k == 0 ){
+			isPrime = false;
+		}
+		k = k + 1 ;
+    x = k - x;
+	} 
+	if(isPrime){
+		q = q + i;
+	}
+	i = i + 1;
+}

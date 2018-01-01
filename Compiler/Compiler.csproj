@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7FA5E7B2-6390-466D-BA28-B91AAFCDFD69}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Compiler</RootNamespace>
+    <AssemblyName>Compiler</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SyntaxTree\AbstractExpression.cs" />
+    <Compile Include="SyntaxTree\AbstractSyntaxTreeBuilder.cs" />
+    <Compile Include="Emitting\Emitter.cs" />
+    <Compile Include="EvaluationData.cs" />
+    <Compile Include="Language\LanguageModel.cs" />
+    <Compile Include="Lexing\FileEnumerator.cs" />
+    <Compile Include="Lexing\Lexer.cs" />
+    <Compile Include="Lexing\Token.cs" />
+    <Compile Include="Lexing\TokenType.cs" />
+    <Compile Include="PostfixCreator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Language\ValueType.cs" />
+    <Compile Include="SyntaxTree\AssignmentExpression.cs" />
+    <Compile Include="SyntaxTree\DataTypeExpression.cs" />
+    <Compile Include="SyntaxTree\DataTypeExpressions\TriboolExpression.cs" />
+    <Compile Include="SyntaxTree\DeclarationExpression.cs" />
+    <Compile Include="SyntaxTree\DataTypeExpressions\DoubleExpression.cs" />
+    <Compile Include="SyntaxTree\GetVariableExpression.cs" />
+    <Compile Include="SyntaxTree\DataTypeExpressions\Int32Expression.cs" />
+    <Compile Include="SyntaxTree\KeywordExpression.cs" />
+    <Compile Include="SyntaxTree\LogicalFunctionExpression.cs" />
+    <Compile Include="SyntaxTree\DataTypeExpressions\LogicExpression.cs" />
+    <Compile Include="SyntaxTree\OperatorExpression.cs" />
+    <Compile Include="SyntaxTree\ScopeExpression.cs" />
+    <Compile Include="SyntaxTree\VariableExpression.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
