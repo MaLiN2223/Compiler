@@ -111,9 +111,22 @@ namespace Compiler.Emitting
       if (log.Value == "if")
       {
         var jump = ilg.DefineLabel();
-        DoEmit(ilg, log.InnerExpression);
+        DoEmit(ilg, log.LogicalCheck);
         ilg.Emit(OpCodes.Brfalse, jump);
         DoEmit(ilg, log.ScopeExpression);
+        ilg.MarkLabel(jump);
+      }
+      else if (log is ForLoop fl)
+      {
+        var start = ilg.DefineLabel();
+        var jump = ilg.DefineLabel();
+        DoEmit(ilg, fl.Initialization);
+        ilg.MarkLabel(start);
+        DoEmit(ilg, fl.LogicalCheck);
+        ilg.Emit(OpCodes.Brfalse, jump);
+        DoEmit(ilg, fl.ScopeExpression);
+        DoEmit(ilg, fl.Incrementation);
+        ilg.Emit(OpCodes.Br, start);
         ilg.MarkLabel(jump);
       }
       else
@@ -121,7 +134,7 @@ namespace Compiler.Emitting
         var start = ilg.DefineLabel();
         var jump = ilg.DefineLabel();
         ilg.MarkLabel(start);
-        DoEmit(ilg, log.InnerExpression);
+        DoEmit(ilg, log.LogicalCheck);
         ilg.Emit(OpCodes.Brfalse, jump);
         DoEmit(ilg, log.ScopeExpression);
         ilg.Emit(OpCodes.Br, start);

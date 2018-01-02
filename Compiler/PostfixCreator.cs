@@ -84,14 +84,23 @@ namespace Compiler
           {
             yield return output.Dequeue();
           }
+          while (stack.Count > 0)
+          {
+            yield return stack.Pop();
+          }
 
           yield return token;
         }
         else if (type == TokenType.Terminator)
         {
-          while (stack.Count > 0 && stack.Peek().Value != "{")
+          Token? lastTaken = null;
+          while (
+            stack.Count > 0
+            && stack.Peek().Value != "{"
+            && stack.Peek().Value != "(")
           {
-            output.Enqueue(stack.Pop());
+            lastTaken = stack.Pop();
+            output.Enqueue(lastTaken.Value);
           }
 
           foreach (var t in output)

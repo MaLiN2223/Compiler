@@ -65,6 +65,8 @@
     <Compile Include="SyntaxTree\ScopeExpression.cs" />
     <Compile Include="SyntaxTree\VariableExpression.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="SyntaxTree\LoopExpressions\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

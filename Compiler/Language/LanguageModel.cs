@@ -14,7 +14,7 @@ namespace Compiler.Language
 
     public static readonly char InstructionTerminator = ';';
 
-    public static readonly string[] KeywordsForScope = { "if", "while" };
+    public static readonly string[] KeywordsForScope = { "if", "while", "for" };
 
     public static readonly char[] Operators = { '+', '-', '/', '*', '%', '!', '<', '>', '=', '^' };
 
