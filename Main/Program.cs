@@ -12,7 +12,7 @@ namespace Main
     static void Main(string[] args)
     {
       var lexer = new Lexer();
-      var tokens = lexer.DoParse(@"source.mal").ToList();
+      var tokens = lexer.ParseFile(@"source.mal").ToList();
       var q = new AbstractSyntaxTreeBuilder();
       var e = new Emitter();
       var t = q.Build(tokens);

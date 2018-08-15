@@ -1,6 +1,6 @@
 namespace Compiler.SyntaxTree
 {
-  public class LogicalFunctionExpression : KeywordExpression
+  public abstract class LogicalFunctionExpression : KeywordExpression
   {
     public LogicalFunctionExpression(string value, AbstractExpression logicalCheck)
       : base(value)
@@ -9,6 +9,21 @@ namespace Compiler.SyntaxTree
     }
 
     public AbstractExpression LogicalCheck { get; set; }
+  }
+
+  public class ElseExpression : KeywordExpression
+  {
+    public ElseExpression(string value)
+      : base(value)
+    {
+    }
+  }
+  public class IfExpression : LogicalFunctionExpression
+  {
+    public IfExpression(string value, AbstractExpression logicalCheck)
+      : base(value, logicalCheck)
+    {
+    }
   }
 
   public abstract class LoopExpression : LogicalFunctionExpression

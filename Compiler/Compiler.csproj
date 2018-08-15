@@ -40,6 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Lexing\IStringDataEnumerator.cs" />
+    <Compile Include="Lexing\StringDataEnumerator.cs" />
+    <Compile Include="Lexing\StringEnumerator.cs" />
+    <Compile Include="Lexing\SyntaxFacts.cs" />
+    <Compile Include="Lexing\SyntaxKind.cs" />
     <Compile Include="SyntaxTree\AbstractExpression.cs" />
     <Compile Include="SyntaxTree\AbstractSyntaxTreeBuilder.cs" />
     <Compile Include="Emitting\Emitter.cs" />

@@ -35,7 +35,7 @@ namespace Compiler.Emitting
         case ">":
           return OpCodes.Cgt;
         case "<":
-          return OpCodes.Clt;
+          return OpCodes.Clt; 
         case "%":
           return OpCodes.Rem;
       }

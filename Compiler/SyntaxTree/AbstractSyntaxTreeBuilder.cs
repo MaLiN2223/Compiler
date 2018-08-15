@@ -121,11 +121,16 @@ namespace Compiler.SyntaxTree
       if (value == "if")
       {
         var logicalCondition = stack.Pop();
-        expr = new LogicalFunctionExpression(value, logicalCondition);
+        expr = new IfExpression(value, logicalCondition);
+      }
+      else if (value == "else")
+      { 
+        expr = new ElseExpression(value);
       }
       else if (value == "while")
       {
         var logicalCondition = stack.Pop();
+
         expr = new WhileLoop(value, logicalCondition);
       }
       else if (value == "for")

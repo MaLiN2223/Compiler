@@ -1,6 +1,6 @@
 int q = 0;
 int a = 100;
-double x = 0.1;
+int x = 0.1;
 int i = 1;
 while(i<a){
 	int k = 2;
@@ -13,10 +13,8 @@ while(i<a){
 		k = k + 1 ;
 		x = k - x;
 	} 
-	int z = 10;
-	z = z + 1;
-	for (z = 0; z < 10 ; z = z + 1){
-		x = x +1;
+	for (double z = 0; z < 10 ; z = z + 1){
+		x = x + z;
 	}
 	if(isPrime){
 		q = q + i;

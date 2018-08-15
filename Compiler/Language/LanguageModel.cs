@@ -6,141 +6,165 @@ using System.Runtime.CompilerServices;
 
 namespace Compiler.Language
 {
-  public static class LanguageModel
-  {
-    public static readonly char Comment = '#';
+	public interface ILanguageModel
+	{
+		bool IsCommentCharacter(char c);
+		bool IsEof(char ch);
+		bool IsEmpty(char ch);
+		bool IsDigit(char ch);
+		bool IsBeginingOfIdentifier(char ch);
+		bool IsMiddleIdentifier(char ch);
+		bool IsDataTypeKeyword(string ch);
+		bool IsInstructionTerminator(char ch);
+		bool IsKeyword(string ch);
+		bool IsKeywordWithScope(string str);
+		bool IsOperator(char ch);
+		bool IsPartOfDigit(char ch);
+	}
 
-    public static readonly string[] DataTypeKeywords = { "true", "false", "null" };
+	public class LanguageModel : ILanguageModel
+	{
+		public static readonly char Comment = '#';
 
-    public static readonly char InstructionTerminator = ';';
 
-    public static readonly string[] KeywordsForScope = { "if", "while", "for" };
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsCommentCharacter(char c)
+		{
+			return Comment == c;
+		}
 
-    public static readonly char[] Operators = { '+', '-', '/', '*', '%', '!', '<', '>', '=', '^' };
 
-    public static readonly char[] Punctuations = { ',', ')', '(' };
+		public static readonly string[] DataTypeKeywords = { "true", "false", "null" };
 
-    public static readonly string[] Types;
+		public static readonly char InstructionTerminator = ';';
 
-    public static readonly Dictionary<string, ValueType> TypesMap =
-      new Dictionary<string, ValueType>
-        {
-          { "int", ValueType.Int },
-          { "tribool", ValueType.Tribool },
-          { "double", ValueType.Double },
-          { "bool", ValueType.Bool }
-        };
+		public static readonly string[] KeywordsForScope = { "if", "while", "for", "else" };
 
-    public static readonly Dictionary<ValueType, Type> ValueTypeToTypeMap =
-      new Dictionary<ValueType, Type>
-        {
-          { ValueType.Int, typeof(int) },
-          { ValueType.Tribool, typeof(bool?) },
-          { ValueType.Double, typeof(double) },
-          { ValueType.Bool, typeof(bool) }
-        };
+		public static readonly char[] Operators = { '+', '-', '/', '*', '%', '!', '<', '>', '=', '^' };
 
-    static LanguageModel()
-    {
-      Types = TypesMap.Keys.ToArray();
-    }
+		public static readonly char[] Punctuations = { ',', ')', '(' };
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsBeginingOfIdentifier(char current)
-    {
-      return char.IsLetter(current) || current == '_';
-    }
+		public static readonly string[] Types;
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsDataTypeKeyword(string word)
-    {
-      return DataTypeKeywords.Contains(word);
-    }
+		public static readonly Dictionary<string, ValueType> TypesMap =
+			new Dictionary<string, ValueType>
+				{
+					{ "int", ValueType.Int },
+					{ "tribool", ValueType.Tribool },
+					{ "double", ValueType.Double },
+					{ "bool", ValueType.Bool }
+				};
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsDigit(char ch)
-    {
-      return char.IsDigit(ch);
-    }
+		public static readonly Dictionary<ValueType, Type> ValueTypeToTypeMap =
+			new Dictionary<ValueType, Type>
+				{
+					{ ValueType.Int, typeof(int) },
+					{ ValueType.Tribool, typeof(bool?) },
+					{ ValueType.Double, typeof(double) },
+					{ ValueType.Bool, typeof(bool) }
+				};
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsEmpty(char ch)
-    {
-      return ch == ' ' || ch == '\n' || ch == '\t';
-    }
+		static LanguageModel()
+		{
+			Types = TypesMap.Keys.ToArray();
+		}
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsEof(char ch)
-    {
-      return ch == '\0';
-    }
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsBeginingOfIdentifier(char current)
+		{
+			return char.IsLetter(current) || current == '_';
+		}
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsInstructionTerminator(char ch)
-    {
-      return ch == InstructionTerminator;
-    }
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsDataTypeKeyword(string word)
+		{
+			return DataTypeKeywords.Contains(word);
+		}
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsKeyword(string word)
-    {
-      return IsKeywordWithScope(word) || IsDataTypeKeyword(word);
-    }
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsDigit(char ch)
+		{
+			return char.IsDigit(ch);
+		}
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsKeywordWithScope(string word)
-    {
-      return KeywordsForScope.Contains(word);
-    }
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsEmpty(char ch)
+		{
+			return ch == ' ' || ch == '\n' || ch == '\t';
+		}
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsMiddleIdentifier(char current)
-    {
-      return IsBeginingOfIdentifier(current) || char.IsNumber(current);
-    }
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsEof(char ch)
+		{
+			return ch == '\0';
+		}
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsOperator(char ch)
-    {
-      return Operators.Contains(ch);
-    }
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsInstructionTerminator(char ch)
+		{
+			return ch == InstructionTerminator;
+		}
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsPartOfDigit(char ch)
-    {
-      return char.IsDigit(ch) || ch == '.';
-    }
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsKeyword(string word)
+		{
+			return IsKeywordWithScope(word) || IsDataTypeKeyword(word);
+		}
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsPunctuation(char ch)
-    {
-      return Punctuations.Contains(ch);
-    }
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsKeywordWithScope(string word)
+		{
+			return KeywordsForScope.Contains(word);
+		}
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsscopeIndicator(char ch)
-    {
-      return ch == '}' || ch == '{';
-    }
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsMiddleIdentifier(char current)
+		{
+			return IsBeginingOfIdentifier(current) || char.IsNumber(current);
+		}
 
-    [DebuggerStepThrough]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsType(string ch)
-    {
-      return Types.Contains(ch);
-    }
-  }
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsOperator(char ch)
+		{
+			return Operators.Contains(ch);
+		}
+
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsPartOfDigit(char ch)
+		{
+			return char.IsDigit(ch) || ch == '.';
+		}
+
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsPunctuation(char ch)
+		{
+			return Punctuations.Contains(ch);
+		}
+
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsscopeIndicator(char ch)
+		{
+			return ch == '}' || ch == '{';
+		}
+
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsType(string ch)
+		{
+			return Types.Contains(ch);
+		}
+	}
 }
