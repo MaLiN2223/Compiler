@@ -185,49 +185,64 @@ namespace Compiler.Emitting
 #endif
 			var mb = ab.DefineDynamicModule(an.Name, assemblyFile, emitAsDebug);
 
-			var tmp = EmitTypes(mb, mainScope);
-			var types = tmp.types;
+			var methodBuilder = EmitTypes(mb, mainScope);
 
-			ab.SetEntryPoint(tmp.mb, PEFileKinds.ConsoleApplication);
+			ab.SetEntryPoint(Main, PEFileKinds.ConsoleApplication);
 			var outputFile = Path.Combine(outputPath, assemblyFile);
 			ab.Save(assemblyFile);
 			File.Move(assemblyFile, outputFile);
 			return outputFile;
 		}
 
-		private (List<Type> types, MethodBuilder mb) EmitTypes(ModuleBuilder mb, ScopeExpression mainScope)
+		private MethodBuilder EmitTypes(ModuleBuilder mb, ScopeExpression mainScope)
 		{
 			var list = new List<Type>();
 			MethodBuilder main = null;
-			foreach (var scope in mainScope.Expressions) // classes or namespaces
+			foreach (var scope in mainScope.Expressions) // namespaces
 			{
+				ProcessScope(scope, mb);
+			}
 
-				var cls = scope as ClassExpression;
-				var tb = mb.DefineType("Namespace." + cls.ClassName, TypeAttributes.Public | TypeAttributes.Class);
-				var fb = tb.DefineMethod(
-					"Main",
-					MethodAttributes.Public | MethodAttributes.Static,
-					typeof(void),
-					new[] { typeof(string[]) });
+			return main;
+		}
 
-				if (fb.Name == "Main")
+		private MethodBuilder Main = null;
+
+		private string ConcatenateNames(string a, string b)
+		{
+			if (string.IsNullOrEmpty(a))
+			{
+				return b;
+			}
+
+			return a + "." + b;
+		}
+		private void ProcessScope(AbstractExpression scope, ModuleBuilder mb, string higherName = "")
+		{
+			if (scope is NamespaceExpression nmspc)
+			{
+				var namespaceName = nmspc.NamespaceName;
+				foreach (var innerScope in nmspc.ScopeExpression.Expressions) // classes or inner namespaces
 				{
-					main = fb;
+					ProcessScope(innerScope, mb, ConcatenateNames(higherName, namespaceName));
 				}
-
+			}
+			else if (scope is ClassExpression classExpression)
+			{
+				var className = classExpression.ClassName;
+				var tb = mb.DefineType(ConcatenateNames(higherName, className), TypeAttributes.Public | TypeAttributes.Class);
+				var fb = tb.DefineMethod("Main", MethodAttributes.Public | MethodAttributes.Static, typeof(void),
+					new[] { typeof(string[]) });
 				var ilg = fb.GetILGenerator();
-
-				EmitType(ilg, cls);
+				Main = fb;
+				EmitType(ilg, classExpression);
 
 				ilg.Emit(OpCodes.Ldloc, 0);
 				ilg.Emit(OpCodes.Box, typeof(int));
 				ilg.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(object) }));
 				ilg.Emit(OpCodes.Ret);
-				list.Add(tb.CreateType());
-
+				tb.CreateType();
 			}
-
-			return (list, main);
 		}
 	}
 }

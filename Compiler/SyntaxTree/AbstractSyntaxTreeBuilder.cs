@@ -124,10 +124,22 @@ namespace Compiler.SyntaxTree
 			KeywordExpression expr = null;
 			enumer.MoveNext(); // skip current keyword
 			var innerScope = ConsumeNewScope(enumer);
-			if (value == "class")
+			if (value == "namespace")
 			{
-				var identifier = stack.Pop();
-				if (identifier is IdentifierExpression cls)
+				var namespaceIdentifier = stack.Pop();
+				if (namespaceIdentifier is IdentifierExpression nms)
+				{
+					expr = new NamespaceExpression(value, nms.Name);
+				}
+				else
+				{
+					throw new ArgumentException();
+				}
+			}
+			else if (value == "class")
+			{
+				var clasIdentifier = stack.Pop();
+				if (clasIdentifier is IdentifierExpression cls)
 				{
 					expr = new ClassExpression(value, cls.Name);
 				}

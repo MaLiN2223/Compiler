@@ -11,9 +11,19 @@ namespace Compiler.SyntaxTree
 		public AbstractExpression LogicalCheck { get; set; }
 	}
 
+	public class NamespaceExpression : KeywordExpression
+	{
+		public string NamespaceName { get; }
+
+		public NamespaceExpression(string value, string namespaceName) : base(value)
+		{
+			NamespaceName = namespaceName;
+		}
+	}
+
 	public class ClassExpression : KeywordExpression
 	{
-		public string ClassName { get; private set; }
+		public string ClassName { get; }
 		public ClassExpression(string value, string className) : base(value)
 		{
 			ClassName = className;
