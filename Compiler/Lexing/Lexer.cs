@@ -117,7 +117,7 @@ namespace Compiler.Lexing
 				if (languageModel.IsEof(current))
 				{
 					yield break;
-				}
+				} 
 
 				if (languageModel.IsInstructionTerminator(current))
 				{
@@ -145,7 +145,7 @@ namespace Compiler.Lexing
 					yield return ReadIdentifier(enumerator);
 				}
 
-				if (languageModel.IsscopeIndicator(current))
+				if (languageModel.IsScopeIndicator(current))
 				{
 					yield return new Token(current.ToString(), TokenType.Scope);
 					enumerator.MoveNext();

@@ -17,24 +17,24 @@ namespace Compiler.SyntaxTree
 
     public static OperatorExpression Operator(string value, AbstractExpression left, AbstractExpression right)
     {
-      if (left is VariableExpression && value == "=")
+      if (left is IdentifierExpression && value == "=")
       {
-        return new AssignmentExpression(left as VariableExpression, right);
+        return new AssignmentExpression(left as IdentifierExpression, right);
       }
 
-      if (left is VariableExpression && right is VariableExpression)
+      if (left is IdentifierExpression && right is IdentifierExpression)
       {
-        return new OperatorExpression(value, left as VariableExpression, right as VariableExpression);
+        return new OperatorExpression(value, left as IdentifierExpression, right as IdentifierExpression);
       }
 
-      if (left is VariableExpression)
+      if (left is IdentifierExpression)
       {
-        return new OperatorExpression(value, left as VariableExpression, right);
+        return new OperatorExpression(value, left as IdentifierExpression, right);
       }
 
-      if (right is VariableExpression)
+      if (right is IdentifierExpression)
       {
-        return new OperatorExpression(value, left, right as VariableExpression);
+        return new OperatorExpression(value, left, right as IdentifierExpression);
       }
 
       return new OperatorExpression(value, left, right);

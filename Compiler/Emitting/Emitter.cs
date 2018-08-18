@@ -46,6 +46,11 @@ namespace Compiler.Emitting
 			throw new NotImplementedException();
 		}
 
+		private void EmitType(ILGenerator ilg, ClassExpression cls)
+		{
+			DoEmit(ilg, cls.ScopeExpression);
+		}
+
 		private void DoEmit(ILGenerator ilg, ScopeExpression mainScope)
 		{
 			foreach (var q in mainScope.Expressions)
@@ -75,7 +80,7 @@ namespace Compiler.Emitting
 			{
 				ilg.Emit(OpCodes.Ldc_R8, dub.Value);
 			}
-			else if (expression is VariableExpression varexpr)
+			else if (expression is IdentifierExpression varexpr)
 			{
 				var variable = _variablesDict[varexpr.Name];
 				ilg.Emit(OpCodes.Ldloc, variable);
@@ -179,26 +184,50 @@ namespace Compiler.Emitting
       bool emitAsDebug = false;
 #endif
 			var mb = ab.DefineDynamicModule(an.Name, assemblyFile, emitAsDebug);
-			var tb = mb.DefineType("Namespace.Program", TypeAttributes.Public | TypeAttributes.Class);
-			var fb = tb.DefineMethod(
-				"Main",
-				MethodAttributes.Public | MethodAttributes.Static,
-				typeof(void),
-				new[] { typeof(string[]) });
-			var ilg = fb.GetILGenerator();
 
-			DoEmit(ilg, mainScope);
+			var tmp = EmitTypes(mb, mainScope);
+			var types = tmp.types;
 
-			ilg.Emit(OpCodes.Ldloc, 0);
-			ilg.Emit(OpCodes.Box, typeof(int));
-			ilg.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(object) }));
-			ilg.Emit(OpCodes.Ret);
-			var t = tb.CreateType();
-			ab.SetEntryPoint(fb, PEFileKinds.ConsoleApplication);
+			ab.SetEntryPoint(tmp.mb, PEFileKinds.ConsoleApplication);
 			var outputFile = Path.Combine(outputPath, assemblyFile);
 			ab.Save(assemblyFile);
 			File.Move(assemblyFile, outputFile);
 			return outputFile;
+		}
+
+		private (List<Type> types, MethodBuilder mb) EmitTypes(ModuleBuilder mb, ScopeExpression mainScope)
+		{
+			var list = new List<Type>();
+			MethodBuilder main = null;
+			foreach (var scope in mainScope.Expressions) // classes or namespaces
+			{
+
+				var cls = scope as ClassExpression;
+				var tb = mb.DefineType("Namespace." + cls.ClassName, TypeAttributes.Public | TypeAttributes.Class);
+				var fb = tb.DefineMethod(
+					"Main",
+					MethodAttributes.Public | MethodAttributes.Static,
+					typeof(void),
+					new[] { typeof(string[]) });
+
+				if (fb.Name == "Main")
+				{
+					main = fb;
+				}
+
+				var ilg = fb.GetILGenerator();
+
+				EmitType(ilg, cls);
+
+				ilg.Emit(OpCodes.Ldloc, 0);
+				ilg.Emit(OpCodes.Box, typeof(int));
+				ilg.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(object) }));
+				ilg.Emit(OpCodes.Ret);
+				list.Add(tb.CreateType());
+
+			}
+
+			return (list, main);
 		}
 	}
 }

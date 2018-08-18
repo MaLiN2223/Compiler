@@ -1,8 +1,8 @@
 namespace Compiler.SyntaxTree
 {
-  public class VariableExpression : AbstractExpression
+  public class IdentifierExpression : AbstractExpression
   {
-    public VariableExpression(string name)
+    public IdentifierExpression(string name)
     {
       Name = name;
     }

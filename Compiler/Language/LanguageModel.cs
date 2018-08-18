@@ -14,7 +14,7 @@ namespace Compiler.Language
 
 		public static readonly char InstructionTerminator = ';';
 
-		public static readonly string[] KeywordsForScope = { "if", "while", "for", "else" };
+		public static readonly string[] KeywordsForScope = { "if", "while", "for", "else", "namespace", "class" };
 
 		public static readonly char[] Operators = { '+', '-', '/', '*', '%', '!', '<', '>', '=', '^' };
 
@@ -137,7 +137,7 @@ namespace Compiler.Language
 
 		[DebuggerStepThrough]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsscopeIndicator(char ch)
+		public bool IsScopeIndicator(char ch)
 		{
 			return ch == '}' || ch == '{';
 		}

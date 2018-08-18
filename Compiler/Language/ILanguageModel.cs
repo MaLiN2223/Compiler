@@ -16,6 +16,6 @@
 		bool IsKeywordWithScope(string str);
 		bool IsOperator(char ch);
 		bool IsPartOfDigit(char ch);
-		bool IsscopeIndicator(char ch);
+		bool IsScopeIndicator(char ch);
 	}
 }

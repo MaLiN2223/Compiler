@@ -2,7 +2,7 @@ using Compiler.Language;
 
 namespace Compiler.SyntaxTree
 {
-  public class DeclarationExpression : VariableExpression
+  public class DeclarationExpression : IdentifierExpression
   {
     public DeclarationExpression(string type, string name)
       : base(name)
