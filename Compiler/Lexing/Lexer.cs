@@ -114,44 +114,44 @@ namespace Compiler.Lexing
 			while (true)
 			{
 				var current = enumerator.Current;
-				if (LanguageModel.IsEof(current))
+				if (languageModel.IsEof(current))
 				{
 					yield break;
 				}
 
-				if (LanguageModel.IsInstructionTerminator(current))
+				if (languageModel.IsInstructionTerminator(current))
 				{
 					yield return new Token(";", TokenType.Terminator, SyntaxKind.SemicolonToken);
 					enumerator.MoveNext();
 				}
 
-				if (LanguageModel.IsDigit(current))
+				if (languageModel.IsDigit(current))
 				{
 					yield return ReadNumber(enumerator);
 				}
 
-				if (LanguageModel.IsPunctuation(current))
+				if (languageModel.IsPunctuation(current))
 				{
 					yield return ReadPunctuation(enumerator);
 				}
 
-				if (LanguageModel.IsOperator(current))
+				if (languageModel.IsOperator(current))
 				{
 					yield return ReadOperator(enumerator);
 				}
 
-				if (LanguageModel.IsBeginingOfIdentifier(current))
+				if (languageModel.IsBeginingOfIdentifier(current))
 				{
 					yield return ReadIdentifier(enumerator);
 				}
 
-				if (LanguageModel.IsscopeIndicator(current))
+				if (languageModel.IsscopeIndicator(current))
 				{
 					yield return new Token(current.ToString(), TokenType.Scope);
 					enumerator.MoveNext();
 				}
 
-				while (LanguageModel.IsEmpty(enumerator.Current))
+				while (languageModel.IsEmpty(enumerator.Current))
 				{
 					enumerator.MoveNext();
 				}
@@ -164,18 +164,18 @@ namespace Compiler.Lexing
 
 		private Token ReadIdentifier(IEnumerator<char> enumerator)
 		{
-			var ident = ReadWhilePredicate(enumerator, LanguageModel.IsMiddleIdentifier);
-			if (LanguageModel.IsDataTypeKeyword(ident))
+			var ident = ReadWhilePredicate(enumerator, languageModel.IsMiddleIdentifier);
+			if (languageModel.IsDataTypeKeyword(ident))
 			{
 				return new Token(ident, TokenType.DataType);
 			}
 
-			if (LanguageModel.IsKeyword(ident))
+			if (languageModel.IsKeyword(ident))
 			{
 				return new Token(ident, TokenType.Keyword);
 			}
 
-			if (LanguageModel.IsType(ident))
+			if (languageModel.IsType(ident))
 			{
 				return new Token(ident, TokenType.Type);
 			}
@@ -185,19 +185,19 @@ namespace Compiler.Lexing
 
 		private Token ReadNumber(IEnumerator<char> enumerator)
 		{
-			var number = ReadWhilePredicate(enumerator, LanguageModel.IsPartOfDigit);
+			var number = ReadWhilePredicate(enumerator, languageModel.IsPartOfDigit);
 			return new Token(number, TokenType.DataType);
 		}
 
 		private Token ReadOperator(IEnumerator<char> enumerator)
 		{
-			var op = ReadWhilePredicate(enumerator, LanguageModel.IsOperator);
+			var op = ReadWhilePredicate(enumerator, languageModel.IsOperator);
 			return new Token(op, TokenType.Operator);
 		}
 
 		private Token ReadPunctuation(IEnumerator<char> enumerator)
 		{
-			var punc = ReadWhilePredicate(enumerator, LanguageModel.IsPunctuation);
+			var punc = ReadWhilePredicate(enumerator, languageModel.IsPunctuation);
 			return new Token(punc, TokenType.Punctuation);
 		}
 

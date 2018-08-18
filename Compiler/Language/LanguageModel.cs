@@ -6,33 +6,9 @@ using System.Runtime.CompilerServices;
 
 namespace Compiler.Language
 {
-	public interface ILanguageModel
-	{
-		bool IsCommentCharacter(char c);
-		bool IsEof(char ch);
-		bool IsEmpty(char ch);
-		bool IsDigit(char ch);
-		bool IsBeginingOfIdentifier(char ch);
-		bool IsMiddleIdentifier(char ch);
-		bool IsDataTypeKeyword(string ch);
-		bool IsInstructionTerminator(char ch);
-		bool IsKeyword(string ch);
-		bool IsKeywordWithScope(string str);
-		bool IsOperator(char ch);
-		bool IsPartOfDigit(char ch);
-	}
-
 	public class LanguageModel : ILanguageModel
 	{
 		public static readonly char Comment = '#';
-
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsCommentCharacter(char c)
-		{
-			return Comment == c;
-		}
-
 
 		public static readonly string[] DataTypeKeywords = { "true", "false", "null" };
 
@@ -67,6 +43,12 @@ namespace Compiler.Language
 		static LanguageModel()
 		{
 			Types = TypesMap.Keys.ToArray();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsCommentCharacter(char c)
+		{
+			return Comment == c;
 		}
 
 		[DebuggerStepThrough]
@@ -148,21 +130,21 @@ namespace Compiler.Language
 
 		[DebuggerStepThrough]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool IsPunctuation(char ch)
+		public bool IsPunctuation(char ch)
 		{
 			return Punctuations.Contains(ch);
 		}
 
 		[DebuggerStepThrough]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool IsscopeIndicator(char ch)
+		public bool IsscopeIndicator(char ch)
 		{
 			return ch == '}' || ch == '{';
 		}
 
 		[DebuggerStepThrough]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool IsType(string ch)
+		public bool IsType(string ch)
 		{
 			return Types.Contains(ch);
 		}

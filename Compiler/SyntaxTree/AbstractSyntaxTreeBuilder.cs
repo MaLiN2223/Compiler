@@ -10,10 +10,17 @@ namespace Compiler.SyntaxTree
 {
   public class AbstractSyntaxTreeBuilder
   {
+	  private readonly ILanguageModel languageModel;
+
+	  public AbstractSyntaxTreeBuilder(ILanguageModel languageModel)
+	  {
+		  this.languageModel = languageModel;
+	  }
     public ScopeExpression Build(IEnumerable<Token> tokens)
     {
+			var postfixCreator = new PostfixCreator(languageModel);
       var a = string.Join(",", tokens.Select(x => x.Value));
-      var postfix = PostfixCreator.Postfix(tokens);
+      var postfix = postfixCreator.Postfix(tokens);
       var q = string.Join(",", postfix.Select(x => x.Value));
       var mainBlock = ConsumeNewScope(postfix.GetEnumerator());
       return mainBlock;
@@ -21,7 +28,7 @@ namespace Compiler.SyntaxTree
 
     private AbstractExpression CreateNumberExpression(string value)
     {
-      if (LanguageModel.IsDataTypeKeyword(value))
+      if (languageModel.IsDataTypeKeyword(value))
       {
         // For now we only suppor true/false
         return new LogicExpression(value);
