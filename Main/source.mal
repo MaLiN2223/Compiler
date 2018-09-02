@@ -1,31 +1,41 @@
 namespace X { 
   class A {
-    int q = 0;
-    int a = 100;
-    int x = 0.1;
-    int i = 1;
-    while(i<a){
-	    int k = 2;
-	    bool isPrime = k;
-	    i = i + 2;
-	    while(k < i / 2){
-		    if(i % k == 0){
-			    isPrime = false;
-		    }
-		    k = k + 1 ;
-		    x = k - x;
-	    } 
-	    for (double z = 0; z < 10 ; z = z + 1){
-		    x = x + z;
-	    }
-	    if(isPrime){
-		    q = q + i;
-	    }
-    }
-  }
-  namespace B
-  {
-    class P{}
-  }
+    int Main(){
+      int q = 0;
+      int a = 100;
+      int x = 0.1;
+      int i = 1;
+      double toReturn = 0.01;
+      while(i<a){
+	      int k = 2;
+	      bool isPrime = (k!=0);
+        if(k!=0){
+          isPrime = true;
+        }
+	      i = i + 2;
+	      while(k < i / 2){
+		      if(i % k == 0){
+			      isPrime = false;
+		      }
+          i = 0;
+		      k = k + 1 ;
+		      x = k - x;
+	      } 
+	      for (double z = 0; z < 10 ; z = z + 1){
+		      x = x + z;
+          toReturn = toReturn +x;
+	      }
+	      if(isPrime){
+		      q = q + i;
+	      }
+        a = 100;
+       }
+       return toReturn;
+     }
 
+     int Dupa(int x)
+     {
+      return 1;
+     }
+  }
 }

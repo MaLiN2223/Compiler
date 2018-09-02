@@ -13,6 +13,7 @@ namespace Compiler.Lexing
 		public Lexer(ILanguageModel languageModel)
 		{
 			this.languageModel = languageModel;
+			CurrentLine = 1;
 		}
 		private class TextReader
 		{
@@ -105,23 +106,29 @@ namespace Compiler.Lexing
 
 		public IEnumerable<Token> ParseString(string data)
 		{
-			return Parse(new StringEnumerator(data).GetEnumerator());
+			return Parse(data.GetEnumerator());
 		}
 
+		private int CurrentLine;
 		private IEnumerable<Token> Parse(IEnumerator<char> enumerator)
 		{
 			enumerator.MoveNext();
 			while (true)
 			{
 				var current = enumerator.Current;
+				if (current == '\n')
+				{
+					CurrentLine++;
+					enumerator.MoveNext();
+				}
 				if (languageModel.IsEof(current))
 				{
 					yield break;
-				} 
+				}
 
 				if (languageModel.IsInstructionTerminator(current))
 				{
-					yield return new Token(";", TokenType.Terminator, SyntaxKind.SemicolonToken);
+					yield return new Token(";", TokenType.Terminator, CurrentLine, SyntaxKind.SemicolonToken);
 					enumerator.MoveNext();
 				}
 
@@ -147,11 +154,11 @@ namespace Compiler.Lexing
 
 				if (languageModel.IsScopeIndicator(current))
 				{
-					yield return new Token(current.ToString(), TokenType.Scope);
+					yield return new Token(current.ToString(), TokenType.Scope, CurrentLine);
 					enumerator.MoveNext();
 				}
 
-				while (languageModel.IsEmpty(enumerator.Current))
+				while (enumerator.Current == ' ' || enumerator.Current == '\t')
 				{
 					enumerator.MoveNext();
 				}
@@ -165,40 +172,40 @@ namespace Compiler.Lexing
 		private Token ReadIdentifier(IEnumerator<char> enumerator)
 		{
 			var ident = ReadWhilePredicate(enumerator, languageModel.IsMiddleIdentifier);
-			if (languageModel.IsDataTypeKeyword(ident))
+			if (languageModel.IsSpecialDataKeyword(ident))
 			{
-				return new Token(ident, TokenType.DataType);
+				return new Token(ident, TokenType.SpecialDataKeyword, CurrentLine);
 			}
 
 			if (languageModel.IsKeyword(ident))
 			{
-				return new Token(ident, TokenType.Keyword);
+				return new Token(ident, TokenType.Keyword, CurrentLine);
 			}
 
 			if (languageModel.IsType(ident))
 			{
-				return new Token(ident, TokenType.Type);
+				return new Token(ident, TokenType.SimpleType, CurrentLine);
 			}
 
-			return new Token(ident, TokenType.Identifier);
+			return new Token(ident, TokenType.Identifier, CurrentLine);
 		}
 
 		private Token ReadNumber(IEnumerator<char> enumerator)
 		{
 			var number = ReadWhilePredicate(enumerator, languageModel.IsPartOfDigit);
-			return new Token(number, TokenType.DataType);
+			return new Token(number, TokenType.SpecialDataKeyword, CurrentLine);
 		}
 
 		private Token ReadOperator(IEnumerator<char> enumerator)
 		{
 			var op = ReadWhilePredicate(enumerator, languageModel.IsOperator);
-			return new Token(op, TokenType.Operator);
+			return new Token(op, TokenType.Operator, CurrentLine);
 		}
 
 		private Token ReadPunctuation(IEnumerator<char> enumerator)
 		{
 			var punc = ReadWhilePredicate(enumerator, languageModel.IsPunctuation);
-			return new Token(punc, TokenType.Punctuation);
+			return new Token(punc, TokenType.Punctuation, CurrentLine);
 		}
 
 		private string ReadWhilePredicate(IEnumerator<char> enumerator, Func<char, bool> predicate)

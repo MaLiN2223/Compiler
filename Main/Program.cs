@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 using Compiler;
 using Compiler.Emitting;
@@ -12,13 +13,27 @@ namespace Main
 	{
 		static void Main(string[] args)
 		{
+			bool dumpTree = true;
 			var model = new LanguageModel();
 			var lexer = new Lexer(model);
 			var tokens = lexer.ParseFile(@"source.mal").ToList();
 			var q = new AbstractSyntaxTreeBuilder(model);
-			var e = new Emitter();
-			var t = q.Build(tokens);
-			e.Emit(t, "Test");
+			try
+			{
+				var e = new Emitter();
+				var t = q.Build(tokens);
+				if (dumpTree)
+				{
+					Console.WriteLine(t.Dump());
+				}
+				e.Emit(t, "Test");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
+			}
+
+			Console.ReadKey();
 		}
 	}
 }

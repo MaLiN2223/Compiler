@@ -10,15 +10,17 @@ namespace Compiler.Language
 	{
 		public static readonly char Comment = '#';
 
-		public static readonly string[] DataTypeKeywords = { "true", "false", "null" };
+		public static readonly string[] SpecialDataKeywords = { "true", "false", "null" };
 
 		public static readonly char InstructionTerminator = ';';
 
 		public static readonly string[] KeywordsForScope = { "if", "while", "for", "else", "namespace", "class" };
 
-		public static readonly char[] Operators = { '+', '-', '/', '*', '%', '!', '<', '>', '=', '^' };
+		public static readonly string[] KeywordsWithoutScope = { "return" };
 
-		public static readonly char[] Punctuations = { ',', ')', '(' };
+		public static readonly char[] Operators = { '+', '-', '/', '*', '%', '!', '<', '>', '=', '^', ')', '(' };
+
+		public static readonly char[] Punctuations = { ',' };
 
 		public static readonly string[] Types;
 
@@ -60,9 +62,9 @@ namespace Compiler.Language
 
 		[DebuggerStepThrough]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsDataTypeKeyword(string word)
+		public bool IsSpecialDataKeyword(string word)
 		{
-			return DataTypeKeywords.Contains(word);
+			return SpecialDataKeywords.Contains(word);
 		}
 
 		[DebuggerStepThrough]
@@ -70,13 +72,6 @@ namespace Compiler.Language
 		public bool IsDigit(char ch)
 		{
 			return char.IsDigit(ch);
-		}
-
-		[DebuggerStepThrough]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsEmpty(char ch)
-		{
-			return ch == ' ' || ch == '\n' || ch == '\t';
 		}
 
 		[DebuggerStepThrough]
@@ -97,7 +92,7 @@ namespace Compiler.Language
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool IsKeyword(string word)
 		{
-			return IsKeywordWithScope(word) || IsDataTypeKeyword(word);
+			return IsKeywordWithScope(word) || IsSpecialDataKeyword(word) || IsKeywordWithoutScope(word);
 		}
 
 		[DebuggerStepThrough]
@@ -105,6 +100,13 @@ namespace Compiler.Language
 		public bool IsKeywordWithScope(string word)
 		{
 			return KeywordsForScope.Contains(word);
+		}
+
+		[DebuggerStepThrough]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsKeywordWithoutScope(string word)
+		{
+			return KeywordsWithoutScope.Contains(word);
 		}
 
 		[DebuggerStepThrough]

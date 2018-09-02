@@ -30,7 +30,7 @@ namespace Compiler
 			{
 				var token = enu.Current;
 				var type = token.Type;
-				if (type == TokenType.DataType || type == TokenType.Identifier)
+				if (type == TokenType.SpecialDataKeyword || type == TokenType.Identifier)
 				{
 					output.Enqueue(token);
 				}
@@ -42,28 +42,7 @@ namespace Compiler
 				{
 					stack.Push(token);
 				}
-				else if (type == TokenType.Operator)
-				{
-					var data = EvaluationData.OperatorData[token.Value];
-					while (stack.Count > 0 && stack.Peek().Type == TokenType.Operator)
-					{
-						var tmp = stack.Peek();
-						var tmpData = EvaluationData.OperatorData[tmp.Value];
-						if (data.Associativity == Associativity.Left && data.Priority <= tmpData.Priority
-								|| data.Associativity == Associativity.Right && data.Priority < tmpData.Priority)
-						{
-							tmp = stack.Pop();
-							output.Enqueue(tmp);
-						}
-						else
-						{
-							break;
-						}
-					}
-
-					stack.Push(token);
-				}
-				else if (type == TokenType.Punctuation)
+				else if (token.Value == ")" || token.Value == "(")
 				{
 					if (token.Value == "(")
 					{
@@ -83,6 +62,32 @@ namespace Compiler
 							output.Enqueue(stack.Pop());
 						}
 					}
+				}
+				else if (type == TokenType.Operator)
+				{
+
+					var data = EvaluationData.OperatorData[token.Value];
+					while (stack.Count > 0 && stack.Peek().Type == TokenType.Operator && stack.Peek().Value != "(")
+					{
+						var tmp = stack.Peek();
+						var tmpData = EvaluationData.OperatorData[tmp.Value];
+						if (data.Associativity == Associativity.Left && data.Priority <= tmpData.Priority
+								|| data.Associativity == Associativity.Right && data.Priority < tmpData.Priority)
+						{
+							tmp = stack.Pop();
+							output.Enqueue(tmp);
+						}
+						else
+						{
+							break;
+						}
+					}
+
+					stack.Push(token);
+				}
+				else if (type == TokenType.Punctuation)
+				{
+					// TODO comma
 				}
 				else if (token.Value == "{")
 				{
@@ -126,7 +131,7 @@ namespace Compiler
 
 					yield return token;
 				}
-				else if (type == TokenType.Type)
+				else if (type == TokenType.SimpleType)
 				{
 					// TODO : fix this hack
 					enu.MoveNext();

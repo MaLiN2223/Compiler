@@ -21,56 +21,64 @@ namespace Compiler.Emitting
 			return filePath;
 		}
 
-		private static OpCode GetOperation(string op)
+		private static void EmitOperation(ILGenerator ilg, string op)
 		{
 			switch (op)
 			{
 				case "+":
-					return OpCodes.Add;
+					ilg.Emit(OpCodes.Add);
+					break;
 				case "-":
-					return OpCodes.Sub;
+					ilg.Emit(OpCodes.Sub);
+					break;
 				case "/":
-					return OpCodes.Div;
+					ilg.Emit(OpCodes.Div);
+					break;
 				case "*":
-					return OpCodes.Mul;
+					ilg.Emit(OpCodes.Mul);
+					break;
 				case "==":
-					return OpCodes.Ceq;
+					ilg.Emit(OpCodes.Ceq);
+					break;
 				case ">":
-					return OpCodes.Cgt;
+					ilg.Emit(OpCodes.Cgt);
+					break;
 				case "<":
-					return OpCodes.Clt;
+					ilg.Emit(OpCodes.Clt);
+					break;
 				case "%":
-					return OpCodes.Rem;
+					ilg.Emit(OpCodes.Rem);
+					break;
+				case "!=":
+					ilg.Emit(OpCodes.Ceq);
+					ilg.Emit(OpCodes.Ldc_I4_0);
+					ilg.Emit(OpCodes.Ceq);
+					break;
+				default:
+					throw new NotImplementedException();
 			}
 
-			throw new NotImplementedException();
 		}
 
-		private void EmitType(ILGenerator ilg, ClassExpression cls)
+		private void DoEmit(ILGenerator ilg, ScopeExpression expr)
 		{
-			DoEmit(ilg, cls.ScopeExpression);
-		}
-
-		private void DoEmit(ILGenerator ilg, ScopeExpression mainScope)
-		{
-			foreach (var q in mainScope.Expressions)
+			foreach (var ex in expr.Expressions)
 			{
-				if (q is ScopeExpression expression)
-				{
-					DoEmit(ilg, expression);
-				}
-				else
-				{
-					DoEmit(ilg, q);
-				}
+				DoEmit(ilg, ex);
 			}
 		}
 
 		private void DoEmit(ILGenerator ilg, AbstractExpression expression)
 		{
+
 			if (expression is AssignmentExpression asgn)
 			{
 				EmitAssignment(ilg, asgn);
+			}
+			else if (expression is ReturnExpression ret)
+			{
+				DoEmit(ilg, ret.Expression);
+				ilg.Emit(OpCodes.Ret);
 			}
 			else if (expression is Int32Expression num)
 			{
@@ -121,10 +129,10 @@ namespace Compiler.Emitting
 				var jump = ilg.DefineLabel();
 				DoEmit(ilg, log.LogicalCheck);
 				ilg.Emit(OpCodes.Brfalse, jump);
-				DoEmit(ilg, log.ScopeExpression);
+				DoEmit(ilg, log.BodyExpression);
 				ilg.MarkLabel(jump);
 			}
-			else if (log is ForLoop fl)
+			else if (log is ForLoopExpression fl)
 			{
 				var start = ilg.DefineLabel();
 				var jump = ilg.DefineLabel();
@@ -132,7 +140,7 @@ namespace Compiler.Emitting
 				ilg.MarkLabel(start);
 				DoEmit(ilg, fl.LogicalCheck);
 				ilg.Emit(OpCodes.Brfalse, jump);
-				DoEmit(ilg, fl.ScopeExpression);
+				DoEmit(ilg, fl.BodyExpression);
 				DoEmit(ilg, fl.Incrementation);
 				ilg.Emit(OpCodes.Br, start);
 				ilg.MarkLabel(jump);
@@ -144,17 +152,12 @@ namespace Compiler.Emitting
 				ilg.MarkLabel(start);
 				DoEmit(ilg, log.LogicalCheck);
 				ilg.Emit(OpCodes.Brfalse, jump);
-				DoEmit(ilg, log.ScopeExpression);
+				DoEmit(ilg, log.BodyExpression);
 				ilg.Emit(OpCodes.Br, start);
 				ilg.MarkLabel(jump);
 			}
 		}
 
-		private void EmitOperation(ILGenerator ilg, string operation)
-		{
-			var op = GetOperation(operation);
-			ilg.Emit(op);
-		}
 
 		private void EmitOperator(ILGenerator ilg, OperatorExpression expr)
 		{
@@ -172,7 +175,7 @@ namespace Compiler.Emitting
 
 		private string Start(ScopeExpression mainScope, string outputName, string outputPath)
 		{
-			var assemblyName = System.IO.Path.GetFileNameWithoutExtension(outputName);
+			var assemblyName = Path.GetFileNameWithoutExtension(outputName);
 			var assemblyFile = assemblyName + ".exe";
 			var an = new AssemblyName { Name = assemblyName };
 			var ad = AppDomain.CurrentDomain;
@@ -185,7 +188,7 @@ namespace Compiler.Emitting
 #endif
 			var mb = ab.DefineDynamicModule(an.Name, assemblyFile, emitAsDebug);
 
-			var methodBuilder = EmitTypes(mb, mainScope);
+			EmitTypes(mb, mainScope);
 
 			ab.SetEntryPoint(Main, PEFileKinds.ConsoleApplication);
 			var outputFile = Path.Combine(outputPath, assemblyFile);
@@ -200,7 +203,7 @@ namespace Compiler.Emitting
 			MethodBuilder main = null;
 			foreach (var scope in mainScope.Expressions) // namespaces
 			{
-				ProcessScope(scope, mb);
+				ProcessNamespace(scope as NamespaceExpression, mb);
 			}
 
 			return main;
@@ -217,32 +220,75 @@ namespace Compiler.Emitting
 
 			return a + "." + b;
 		}
-		private void ProcessScope(AbstractExpression scope, ModuleBuilder mb, string higherName = "")
+		private void ProcessNamespace(NamespaceExpression scope, ModuleBuilder mb, string higherName = "")
 		{
-			if (scope is NamespaceExpression nmspc)
+			var namespaceName = scope.NamespaceName;
+			foreach (var innerScope in scope.Expressions) // classes or inner namespaces
 			{
-				var namespaceName = nmspc.NamespaceName;
-				foreach (var innerScope in nmspc.ScopeExpression.Expressions) // classes or inner namespaces
+				if (innerScope is NamespaceExpression sc)
 				{
-					ProcessScope(innerScope, mb, ConcatenateNames(higherName, namespaceName));
+					ProcessNamespace(sc, mb, namespaceName);
+				}
+				else if (innerScope is ClassExpression ce)
+				{
+					EmitType(ce, mb, higherName);
+				}
+				else
+				{
+					throw new ArgumentException();
 				}
 			}
-			else if (scope is ClassExpression classExpression)
-			{
-				var className = classExpression.ClassName;
-				var tb = mb.DefineType(ConcatenateNames(higherName, className), TypeAttributes.Public | TypeAttributes.Class);
-				var fb = tb.DefineMethod("Main", MethodAttributes.Public | MethodAttributes.Static, typeof(void),
-					new[] { typeof(string[]) });
-				var ilg = fb.GetILGenerator();
-				Main = fb;
-				EmitType(ilg, classExpression);
+		}
+		private Dictionary<string, Type> KnownTypes = new Dictionary<string, Type>()
+		{
+			{"int",typeof(int) },
+			{"bool", typeof(bool) },
+			{"void",typeof(void) },
+			{"string", typeof(string) },
+			{"double", typeof(double) }
+		};
+		private void EmitType(ClassExpression classExpression, ModuleBuilder mb, string higherName)
+		{
+			var className = classExpression.ClassName;
+			var tb = mb.DefineType(ConcatenateNames(higherName, className), TypeAttributes.Public | TypeAttributes.Class);
 
-				ilg.Emit(OpCodes.Ldloc, 0);
-				ilg.Emit(OpCodes.Box, typeof(int));
-				ilg.Emit(OpCodes.Call, typeof(Console).GetMethod("WriteLine", new[] { typeof(object) }));
-				ilg.Emit(OpCodes.Ret);
-				tb.CreateType();
+			foreach (var expr in classExpression.Expressions)
+			{
+				var method = expr as FunctionExpression;
+				Type t = typeof(void);
+				if (KnownTypes.ContainsKey(method.ReturnType))
+				{
+					t = KnownTypes[method.ReturnType];
+				}
+
+
+
+				List<Type> types = new List<Type>();
+				if (method.Name != "Main")
+				{
+					foreach (var arg in method.Arguments)
+					{
+						types.Add(KnownTypes[arg.Item1]);
+					}
+				}
+				else
+				{ 
+					types.Add(typeof(string[]));
+				}
+
+				var methodBuilder = tb.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Static, t, types.ToArray());
+				for (int i = 0; i < method.Arguments.Count; ++i)
+				{
+					methodBuilder.DefineParameter(i + 1, ParameterAttributes.None, method.Arguments[i].Item2);
+				}
+				var ilg = methodBuilder.GetILGenerator();
+				DoEmit(ilg, method);
+				if (method.Name == "Main")
+				{
+					Main = methodBuilder;
+				}
 			}
+			tb.CreateType();
 		}
 	}
 }

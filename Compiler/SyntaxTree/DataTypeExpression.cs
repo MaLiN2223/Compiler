@@ -7,6 +7,7 @@ namespace Compiler.SyntaxTree
     public abstract ValueType ValueType { get; }
   }
 
+
   public abstract class DataTypeExpression<T> : DataTypeExpression
   {
     public DataTypeExpression(T value)

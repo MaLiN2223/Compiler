@@ -33,7 +33,7 @@ namespace Tests
 			string code = "int i;\0";
 			var tokens = lexer.ParseString(code).ToList();
 			Assert.Equal(3, tokens.Count);
-			Assert.Equal(TokenType.DataType, tokens[0].Type);
+			Assert.Equal(TokenType.SpecialDataKeyword, tokens[0].Type);
 			Assert.Equal(TokenType.Identifier, tokens[1].Type);
 			Assert.Equal(TokenType.Terminator, tokens[2].Type);
 

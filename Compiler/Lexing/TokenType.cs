@@ -9,7 +9,7 @@ namespace Compiler.Lexing
 
     Operator,
 
-    Type,
+    SimpleType,
 
     Keyword,
 
@@ -17,7 +17,10 @@ namespace Compiler.Lexing
 
     Terminator,
 
-    DataType,
+		/// <summary>
+		/// Includs things that are keywords but have an assigned type (like true, null etc)
+		/// </summary>
+    SpecialDataKeyword,
 
     Scope
   }

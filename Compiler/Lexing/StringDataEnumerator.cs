@@ -19,7 +19,7 @@ namespace Compiler.Lexing
 			{
 				if (!isFirstLine)
 				{
-					yield return ' '; //Space instead of new line 
+					yield return '\n'; //New line
 				}
 				foreach (var x in GetEnumeratorForLine(line))
 				{
